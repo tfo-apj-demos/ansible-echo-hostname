@@ -1,6 +1,6 @@
 - name: Echo hostname playbook
   hosts: all
-  become: yes  # This allows Ansible to use sudo
+  #become: yes  # This allows Ansible to use sudo
 
   tasks:
     - name: Echo hostname
