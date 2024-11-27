@@ -7,6 +7,13 @@
       command: hostname
       register: hostname_output
 
+    - name: Echo Environment
+      command: env
+      register: env_output
+
     - name: Display hostname
       debug:
         msg: "The hostname is {{ hostname_output.stdout }}"
+    - name: Display environment
+      debug:
+        msg: "The hostname is {{ env_output.stdout }}"
