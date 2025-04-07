@@ -1,13 +1,11 @@
 - name: Echo hostname playbook
   hosts: all
   tasks:
-    - name: Wait for SSH connectivity on each host
+    - name: Wait until SSH is available
       ansible.builtin.wait_for_connection:
-        delay: 10      # Wait 10 seconds before the first check
-        timeout: 600   # Total timeout of 600 seconds per host
-      register: connection_status
-      until: connection_status is succeeded
-      retries: 10    # Retry 10 times until successful
+        timeout: 180
+        sleep: 30
+        retry: 10
 
     - name: Echo hostname
       command: hostname
