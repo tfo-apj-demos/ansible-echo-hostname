@@ -3,6 +3,9 @@
   #become: yes  # This allows Ansible to use sudo
 
   tasks:
+    - name: Wait 600 seconds for target connection to become reachable/usable
+      ansible.builtin.wait_for_connection:
+      
     - name: Echo hostname
       command: hostname
       register: hostname_output
