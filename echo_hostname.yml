@@ -4,7 +4,7 @@
     - name: Wait until SSH is available
       ansible.builtin.wait_for_connection:
         timeout: 180
-        sleep: 30
+        sleep: 60
 
     - name: Echo hostname
       command: hostname
