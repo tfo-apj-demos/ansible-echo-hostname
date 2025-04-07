@@ -1,11 +1,14 @@
 - name: Echo hostname playbook
   hosts: all
-  #become: yes  # This allows Ansible to use sudo
-
   tasks:
-    - name: Wait 600 seconds for target connection to become reachable/usable
+    - name: Wait for SSH connectivity on each host
       ansible.builtin.wait_for_connection:
-      
+        delay: 10      # Wait 10 seconds before the first check
+        timeout: 600   # Total timeout of 600 seconds per host
+      register: connection_status
+      until: connection_status is succeeded
+      retries: 10    # Retry 10 times until successful
+
     - name: Echo hostname
       command: hostname
       register: hostname_output
@@ -17,6 +20,7 @@
     - name: Display hostname
       debug:
         msg: "The hostname is {{ hostname_output.stdout }}"
+
     - name: Display environment
       debug:
-        msg: "The hostname is {{ env_output.stdout }}"
+        msg: "The environment is {{ env_output.stdout }}"
