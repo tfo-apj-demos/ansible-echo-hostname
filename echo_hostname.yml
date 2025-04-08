@@ -1,24 +1,35 @@
-- name: Echo hostname playbook
+- name: Resilient Echo hostname playbook
   hosts: all
   tasks:
     - name: Wait until SSH is available
       ansible.builtin.wait_for_connection:
-        delay: 45
+        delay: 30
         timeout: 180
         sleep: 30
 
-    - name: Echo hostname
-      command: hostname
-      register: hostname_output
+    - block:
+        - name: Echo hostname with retries
+          command: hostname
+          register: hostname_output
+          until: hostname_output.rc == 0
+          retries: 3
+          delay: 10
 
-    - name: Echo Environment
-      command: env
-      register: env_output
+        - name: Echo environment with retries
+          command: env
+          register: env_output
+          until: env_output.rc == 0
+          retries: 3
+          delay: 10
 
-    - name: Display hostname
-      debug:
-        msg: "The hostname is {{ hostname_output.stdout }}"
+        - name: Display hostname
+          debug:
+            msg: "The hostname is {{ hostname_output.stdout }}"
 
-    - name: Display environment
-      debug:
-        msg: "The environment is {{ env_output.stdout }}"
+        - name: Display environment
+          debug:
+            msg: "The environment is {{ env_output.stdout }}"
+      rescue:
+        - name: Handle connection failure
+          debug:
+            msg: "Machine is unavailable. Verify connectivity and try again."
