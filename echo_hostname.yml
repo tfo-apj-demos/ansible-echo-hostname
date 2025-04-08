@@ -1,11 +1,20 @@
 - name: Resilient Echo hostname playbook
   hosts: all
+  gather_facts: false
+
   tasks:
     - name: Wait until SSH is available
       ansible.builtin.wait_for_connection:
-        delay: 30
+        delay: 45
         timeout: 180
         sleep: 30
+      register: connection_wait
+      ignore_errors: yes
+
+    - name: Check connection status
+      debug:
+        msg: "Host is reachable"
+      when: connection_wait is succeeded
 
     - block:
         - name: Echo hostname with retries
@@ -29,7 +38,8 @@
         - name: Display environment
           debug:
             msg: "The environment is {{ env_output.stdout }}"
+      when: connection_wait is succeeded
       rescue:
-        - name: Handle connection failure
+        - name: Log unreachable host
           debug:
-            msg: "Machine is unavailable. Verify connectivity and try again."
+            msg: "Host is unreachable after waiting. Skipping this host."
